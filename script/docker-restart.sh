@@ -21,6 +21,6 @@ script/docker-host-security.sh
 echo "Rebuilding Docker container if necessary..."
 script/docker-build.sh
 echo "Bringing down containers..."
-docker-compose down
+docker-compose -p testgambero down
 echo "Launching containers..."
 docker-compose up "$@" # Passes any additional flags

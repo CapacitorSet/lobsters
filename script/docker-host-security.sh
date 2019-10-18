@@ -13,18 +13,32 @@ else
 	echo 'Running in development mode, no content trust'
 fi
 
-rm -rfv log
-if [ $(stat -c %a /data/log/) != 777 ]; then
-	echo '/data/log/ should have 777 permissions (chmod -R 777 /data/log/).'
-	exit 2
+if [ $RAILS_ENV = "production" ]; then
+	DATAPATH=/data
+elif [ $RAILS_ENV = "test" ]; then
+	DATAPATH=/testdata
 else
-	echo '/data/log/ permissions ok'
+	echo 'Could not set $DATAPATH, quitting'
+	exit 1
 fi
-if [ $(stat -c %a /data/sphinx/) != 777 ]; then
-	echo '/data/sphinx/ should have 777 permissions (chmod -R 777 /data/sphinx/).'
+
+echo "DATAPATH=$DATAPATH"
+
+rm -rfv log
+# Run the stat outside the subshell so that errors can be caught
+stat -c %a $DATAPATH/log/
+if [ $(stat -c %a $DATAPATH/log/) != 777 ]; then
+	echo '$DATAPATH/log/ should have 777 permissions (chmod -R 777 $DATAPATH/log/).'
 	exit 2
 else
-	echo '/data/sphinx/ permissions ok'
+	echo '$DATAPATH/log/ permissions ok'
+fi
+stat -c %a $DATAPATH/sphinx/
+if [ $(stat -c %a $DATAPATH/sphinx/) != 777 ]; then
+	echo '$DATAPATH/sphinx/ should have 777 permissions (chmod -R 777 $DATAPATH/sphinx/).'
+	exit 2
+else
+	echo '$DATAPATH/sphinx/ permissions ok'
 fi
 mkdir -pv tmp/
 chmod -Rv 777 tmp/
